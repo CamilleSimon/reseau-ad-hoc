@@ -6,6 +6,6 @@
 ## Analyse
 ### Algorithme de diffusion
 
-Prenons un environnement de taille 1000 x 1000, faisons varier le nombre de station afin d'observer le pourcentage de réception en fonction de la densité du réseau. Afin d'avoir une moyen représeantitive, chaque résultat est la moyen de 50 simulation.
+Prenons un environnement de taille 1000 x 1000, faisons varier le nombre de station afin d'observer le pourcentage de réception en fonction de la densité du réseau. Afin d'avoir une moyen représentitive, chaque résultat est la moyen de 100 simulation.
 
-
+[](https://github.com/CamilleSimon/reseau-ad-hoc/blob/master/fonction-densite.png)
