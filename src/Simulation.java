@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Random;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
@@ -11,10 +12,13 @@ import org.graphstream.ui.spriteManager.SpriteManager;
 public class Simulation {
 
 	protected static final double MAX_SPEED = 1;	//La vitesse TODO ajouter aux paramètre modifiable ?
-	protected static final long MAX_STEPS = 5000;	//Durée de la simulation TODO ajouter un deuxième arrêt au cas où la diffusion est terminé
+	protected static final long MAX_STEPS = 1000;	//Durée de la simulation TODO ajouter un deuxième arrêt au cas où la diffusion est terminé
+	protected static final long DIFFUSION_TIME = 10;
 	
 	protected boolean loop = true;					
 	protected long steps = 0;
+	protected ArrayList<Node> waitBroadcast = new ArrayList<Node>();
+	private Random random = new Random();
 	
 	protected int n;								//Le nombre de stations
 	protected double d;								//
@@ -54,20 +58,30 @@ public class Simulation {
 		for(int i=0; i<n; i++) {
 			Node node = graph.addNode(String.format("%d", i));
 			node.addAttribute("mov", new Movement(node, L, l, MAX_SPEED));
+			node.addAttribute("signal", false);
 		}
+		
+		//Séléction du premier noeud émetteur du signal
+		Node first = graph.getNode(random.nextInt(n+1));
+		first.setAttribute("signal",true);
+		first.setAttribute("time", new Long(0));
+		first.addAttribute("ui.class", "received");
+		
+		waitBroadcast.add(first);
 		
 		//Coeur de la simulation
 		while(loop) {
 
 			for(Node node: graph) {
 				Movement mov = node.getAttribute("mov");
+				broadcast();
 				removeInvalidEdges(node, d);				//Retire les arrêtes
 				addCloseEdges(node, d);						//Ajoute les arrêtes
 				mov.move(node, L, l);						//Déplace les noeuds
 			}
 			
 			//Pause de 5 ms
-			sleep(5);
+			sleep(50);
 			steps += 1;
 			
 			if(steps >= MAX_STEPS) loop = false;
@@ -116,8 +130,35 @@ public class Simulation {
 		}
 	}
 	
+	protected void broadcast() {
+		if(!waitBroadcast.isEmpty()) {
+			Node node;
+			
+			for(int i = 0; i < waitBroadcast.size(); i++) {
+				node = (Node) waitBroadcast.get(i);
+				//Est ce le moment de propager l'information ?
+				if(steps == ((long)node.getAttribute("time") + DIFFUSION_TIME)) {
+					Iterator<? extends Node> neighbors = node.getNeighborNodeIterator();
+					
+					while(neighbors.hasNext()) {
+						Node neighbor = neighbors.next();
+						
+						if((Boolean)neighbor.getAttribute("signal") != true) {
+							neighbor.setAttribute("signal", true);
+							neighbor.setAttribute("time", steps);
+							neighbor.addAttribute("ui.class", "received");
+							waitBroadcast.add(neighbor);
+						}
+					}
+					waitBroadcast.remove(node);
+					node.addAttribute("ui.class", "sent");
+				}
+			}
+		}
+	}
+	
 	/**
-	 * Fonction de mise en pause du thread conserné
+	 * Fonction de mise en pause du thread graphe
 	 * @param ms
 	 */
 	protected  void sleep(long ms) {
@@ -129,6 +170,8 @@ public class Simulation {
 	 */
 	protected static final String styleSheet = 
 		"sprite { fill-color: white; size: 3px; }" +
-		"node { fill-color: #AAA; size: 5px; stroke-mode: plain; stroke-color: white; stroke-width: 1px; }" +
+		"node { fill-color: red; size: 5px; stroke-mode: plain; stroke-color: white; stroke-width: 1px; }" +
+		"node.received { fill-color: orange; }"+	
+		"node.sent { fill-color: green; }"+	
 		"edge { fill-color: #0003; }";
 }
