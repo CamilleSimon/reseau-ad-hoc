@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -22,6 +23,7 @@ public class Parameters extends JFrame{
 	public int l = 0;
 	public double d = 0.0;
 	public int n = 0;
+	public Boolean hide = false;
 
 	public Parameters() {
 		
@@ -41,13 +43,19 @@ public class Parameters extends JFrame{
 		parameters.add(new JLabel(" Longeur de l'environnement (l) : "));
 		parameters.add(longueurText);
 		
-		JTextField distanceText = new JTextField("100");
+		JTextField distanceText = new JTextField("125");
 		parameters.add(new JLabel(" Distance maximale de connexion (d) : "));
 		parameters.add(distanceText);
 		
 		JTextField nbText = new JTextField("100");
 		parameters.add(new JLabel(" Nombre de stations (n) : "));
 		parameters.add(nbText);
+		
+		JComboBox<Boolean> test = new JComboBox<Boolean>();
+		test.addItem(true);
+		test.addItem(false);
+		parameters.add(new JLabel(" Mode analyse ? : "));
+		parameters.add(test);
 		
 		JButton valider = new JButton("Valider");
 		JButton annuler = new JButton("Annuler");
@@ -59,6 +67,7 @@ public class Parameters extends JFrame{
 				l = Integer.parseInt(longueurText.getText());
 				d = Double.parseDouble(distanceText.getText());
 				n = Integer.parseInt(nbText.getText());
+				hide = (Boolean) test.getSelectedItem();
 				close();
 			}
 		});

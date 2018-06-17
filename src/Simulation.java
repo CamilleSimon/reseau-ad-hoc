@@ -19,20 +19,22 @@ public class Simulation {
 	protected long steps = 0;
 	protected ArrayList<Node> waitBroadcast = new ArrayList<Node>();
 	private Random random = new Random();
+	protected Graph graph = new SingleGraph("Ad Hoc Network");
 	
 	protected int n;								//Le nombre de stations
 	protected double d;								//
 	protected int L;								//Longueur de l'environnement (width)
 	protected int l;								//Hauteur de l'environnement (height)
 	
+	protected double received = 0;
+	
 	/*
 	 * Générateur de simulation
 	 */
-	public Simulation(int L, int l, int n, double d) {
+	public Simulation(int L, int l, int n, double d, Boolean hide) {
 //		sleep(30000);	// Wait 30sec.
-		
-		Graph graph = new SingleGraph("Ad Hoc Network");
-		
+
+		if(!hide) {
 		//Les sprites servent à empêcher GraphStream de redimentionner en permanence l'affichage
 		SpriteManager sm = new SpriteManager(graph);
 		Sprite s1 = sm.addSprite("S1");
@@ -49,10 +51,9 @@ public class Simulation {
 		graph.addAttribute("ui.title", "GraphStream: Moving Nodes");
 		graph.addAttribute("ui.quality");
 		graph.addAttribute("ui.antialias");
-		graph.addAttribute("ui.log", "movingFPS.log");
 		graph.addAttribute("ui.stylesheet", styleSheet);
 		graph.addAttribute("ui.fps", 70);
-		graph.display(false);
+		graph.display(false);}
 		
 		//Création des noeuds
 		for(int i=0; i<n; i++) {
@@ -62,7 +63,7 @@ public class Simulation {
 		}
 		
 		//Séléction du premier noeud émetteur du signal
-		Node first = graph.getNode(random.nextInt(n+1));
+		Node first = graph.getNode(random.nextInt(n));
 		first.setAttribute("signal",true);
 		first.setAttribute("time", new Long(0));
 		first.addAttribute("ui.class", "received");
@@ -81,14 +82,17 @@ public class Simulation {
 			}
 			
 			//Pause de 5 ms
-			sleep(50);
+			if(!hide)
+				sleep(50);
 			steps += 1;
 			
 			if(steps >= MAX_STEPS) loop = false;
 		}
 		
-		graph.removeAttribute("ui.log");
-		//System.exit(0);
+		for (Node node: graph)
+			if((Boolean)node.getAttribute("signal"))
+				received++;
+		graph.addAttribute("received", 100*received/n);
 	}
 	
 	/**
@@ -155,6 +159,8 @@ public class Simulation {
 				}
 			}
 		}
+		else
+			loop = false;
 	}
 	
 	/**
