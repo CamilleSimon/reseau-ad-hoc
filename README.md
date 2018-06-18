@@ -6,7 +6,7 @@
 ## Analyse
 ### Algorithme de diffusion
 
-Prenons un environnement de taille 1000 x 1000, faisons varier le nombre de station afin d'observer le pourcentage de réception en fonction de la densité du réseau. Afin d'avoir une moyenne représentitive, chaque résultat est la moyenne de 100 simulations.
+Prenons un environnement de taille 1000 x 1000, faisons varier le nombre de station afin d'observer le pourcentage de réception en fonction de la densité du réseau. Afin d'avoir une moyenne représantitive, chaque résultat est la moyenne de 100 simulations.
 
 ![Pourcentage de réception en fonction de la densité](https://github.com/CamilleSimon/reseau-ad-hoc/blob/master/fonction-densite.png)
 
@@ -16,11 +16,11 @@ Afin d'assurer la propagation de l'information, plusieurs stratégies peuvent ê
 
 ### Distribution spatiale des stations
 
-Construisons un maillage de notre environnement, cela consiste à découper l'espace en cellule. A chaque itération de la simulation, nous comptons le degré moyen des stations dans cette cellule. A la fin de la simulation, on fait la moyenne. On obtient le graphique suivant : 
+Construisons un maillage de notre environnement, cela consiste à découper l'espace en cellule. À chaque itération de la simulation, nous comptons le degré moyen des stations dans cette cellule. À la fin de la simulation, on fait la moyenne. On obtient le graphique suivant : 
 
 ![Distribution des degré des stations](https://github.com/CamilleSimon/reseau-ad-hoc/blob/master/moyenne-degree.png)
 
-On observe que la distribution des degrés est inégale sur l'ensemble de l'environnement; attention, ce graphique ne représente pas la distribution des stations dans l'espace, mais bien la moyenne des connexions. Ainsi, une station a plus de chance de transmettre son message au centre de l'espace, car la probabilité de créer des connexions est plus importante.
+On observe que la distribution des degrés est inégale sur l'ensemble de l'environnement ; attention, ce graphique ne représente pas la distribution des stations dans l'espace, mais bien la moyenne des connexions. Ainsi, une station a plus de chance de transmettre son message au centre de l'espace, car la probabilité de créer des connexions est plus importante.
 
 Dans l'article [The Spatial Node Distribution of the Random Waypoint Mobility Model](http://data.bettstetter.com/publications/bettstetter-2002-wman-rwp.pdf) p.3, il est montré que le phénomène est encore plus important si l'environnement est sphérique. Il pourrait être intéressant dans une évolution de la simulation de proposer des environnements de formes et de topologies différentes.
 
