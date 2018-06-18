@@ -18,7 +18,7 @@ Afin d'assurer la propagation de l'information, plusieurs stratégies peuvent ê
 
 Construisons un maillage de notre environnement, cela consiste à découper l'espace en cellule. À chaque itération de la simulation, nous comptons le degré moyen des stations dans cette cellule. À la fin de la simulation, on fait la moyenne. On obtient le graphique suivant : 
 
-![Distribution des degré des stations](https://github.com/CamilleSimon/reseau-ad-hoc/blob/master/moyenne-degree.png)
+![Distribution des degrés des stations](https://github.com/CamilleSimon/reseau-ad-hoc/blob/master/moyenne-degree.PNG)
 
 On observe que la distribution des degrés est inégale sur l'ensemble de l'environnement ; attention, ce graphique ne représente pas la distribution des stations dans l'espace, mais bien la moyenne des connexions. Ainsi, une station a plus de chance de transmettre son message au centre de l'espace, car la probabilité de créer des connexions est plus importante.
 
