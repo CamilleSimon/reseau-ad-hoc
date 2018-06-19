@@ -27,7 +27,7 @@ public class Parameters extends JFrame{
 
 	public Parameters() {
 		
-		this.setTitle("Paramétrage du réseau");
+		this.setTitle("ParamÃ©trage du rÃ©seau");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setLayout(new BoxLayout(getContentPane(), BoxLayout.PAGE_AXIS));
 		
@@ -68,6 +68,7 @@ public class Parameters extends JFrame{
 				d = Double.parseDouble(distanceText.getText());
 				n = Integer.parseInt(nbText.getText());
 				hide = (Boolean) test.getSelectedItem();
+				//Pourquoi l'appel au constructeur de Simulation ici ne donne fonctionne pas ?
 				close();
 			}
 		});
