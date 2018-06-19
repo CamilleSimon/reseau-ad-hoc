@@ -8,7 +8,7 @@ public class Main {
 		//TODO lancer la fenêtre de simulation dans l'action performed du bouton "valider"
 		while(p.L == 0) {System.out.println(" ");}
 		//Affichage des paramètres transmit par la fenêtre de paramètrage
-		System.out.println(p.l + " " + p.L + " " + p.n + " " + p.hide);
+		System.out.println("Paramètres sélectionnés : " + p.l + " " + p.L + " " + p.n + " " + p.hide);
 		//Si le mode sélectionné est graphique
 		if(p.hide == false) {
 			System.out.println("Mode graphique - Simulation prête");
@@ -18,10 +18,13 @@ public class Main {
 		//Si le mode sélectionné est analyse
 		else {
 			System.out.println("Mode analyse - Démarrage des tests");
+			//Ecriture dans un fichier des résultats pour générer la courbe d'évolution de la réception en fonction de la densité
 			PrintWriter writer = new PrintWriter("gnuplot.txt", "UTF-8");
+			//Boucle d'évolution de la densité
 			for(int n = 10; n <= 250; n += 10) {
 				double percentil = 0;
 				int repetition = 100;
+				//Répétition de la simulation 100 fois afin de pouvoir construire une moyenne => plus de fiabilité des résultats
 				for(int i = 1; i <= repetition; i++) {
 					Simulation s = new Simulation(p.L, p.l, n, p.d, p.hide);
 					percentil += s.received;
