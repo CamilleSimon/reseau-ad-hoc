@@ -11,8 +11,8 @@ import org.graphstream.ui.spriteManager.SpriteManager;
 
 public class Simulation {
 
-	protected static final double MAX_SPEED = 1;	//La vitesse TODO ajouter aux paramètre modifiable ?
-	protected static final long MAX_STEPS = 1000;	//Durée de la simulation TODO ajouter un deuxième arrêt au cas où la diffusion est terminé
+	protected static final double MAX_SPEED = 1;	//La vitesse TODO ajouter aux paramÃ¨tre modifiable ?
+	protected static final long MAX_STEPS = 1000;	//DurÃ©e de la simulation TODO ajouter un deuxiÃ¨me arrÃªt au cas oÃ¹ la diffusion est terminÃ©
 	protected static final long DIFFUSION_TIME = 10;
 	
 	protected boolean loop = true;					
@@ -22,20 +22,32 @@ public class Simulation {
 	protected Graph graph = new SingleGraph("Ad Hoc Network");
 	
 	protected int n;								//Le nombre de stations
-	protected double d;								//
+	protected double d;								//La distance maximale de connexion
 	protected int L;								//Longueur de l'environnement (width)
 	protected int l;								//Hauteur de l'environnement (height)
 	
 	protected double received = 0;
+	protected double[][][] grid = new double[100][100][3]; 	//100 cases par 100 cases, dans la troisiÃ¨me dimension 
+								//on stocke la somme des degrÃ©s pour un pas de temps, 
+								//le nombre de noeuds dans la case pour un pas de temps 
+								//et la moyenne pour tout les pas de temps
 	
 	/*
-	 * Générateur de simulation
+	 * GÃ©nÃ©rateur de simulation
 	 */
 	public Simulation(int L, int l, int n, double d, Boolean hide) {
 //		sleep(30000);	// Wait 30sec.
+		
+		//Initialisation de la grille
+		for(int i = 0; i < 100; i++) {
+			for(int j = 0; j < 100; j++) {
+				for(int k = 0; k < 3; k++)
+					grid[i][j][k] = 0;
+			}
+		}
 
 		if(!hide) {
-		//Les sprites servent à empêcher GraphStream de redimentionner en permanence l'affichage
+		//Les sprites servent Ã  empÃªcher GraphStream de redimentionner en permanence l'affichage
 		SpriteManager sm = new SpriteManager(graph);
 		Sprite s1 = sm.addSprite("S1");
 		Sprite s2 = sm.addSprite("S2");
@@ -47,7 +59,7 @@ public class Simulation {
 		s3.setPosition(L, l, 0);
 		s4.setPosition(L, 0, 0);
 		
-		//Paramètre de l'interface GraphStream
+		//ParamÃ¨tre de l'interface GraphStream
 		graph.addAttribute("ui.title", "GraphStream: Moving Nodes");
 		graph.addAttribute("ui.quality");
 		graph.addAttribute("ui.antialias");
@@ -55,14 +67,14 @@ public class Simulation {
 		graph.addAttribute("ui.fps", 70);
 		graph.display(false);}
 		
-		//Création des noeuds
+		//CrÃ©ation des noeuds
 		for(int i=0; i<n; i++) {
 			Node node = graph.addNode(String.format("%d", i));
 			node.addAttribute("mov", new Movement(node, L, l, MAX_SPEED));
 			node.addAttribute("signal", false);
 		}
 		
-		//Séléction du premier noeud émetteur du signal
+		//SÃ©lÃ©ction du premier noeud Ã©metteur du signal
 		Node first = graph.getNode(random.nextInt(n));
 		first.setAttribute("signal",true);
 		first.setAttribute("time", new Long(0));
@@ -74,11 +86,13 @@ public class Simulation {
 		while(loop) {
 
 			for(Node node: graph) {
+				spatialDistribution(L, l);					//Calcule de la distribution des degrÃ©s des noeuds
+				cleanGrid();							//Vide la grille Ã  l'exeption de la [i][j][]
 				Movement mov = node.getAttribute("mov");
-				broadcast();
-				removeInvalidEdges(node, d);				//Retire les arrêtes
-				addCloseEdges(node, d);						//Ajoute les arrêtes
-				mov.move(node, L, l);						//Déplace les noeuds
+				broadcast();							//Diffuse le message dans le rÃ©seau
+				removeInvalidEdges(node, d);					//Retire les arrÃªtes
+				addCloseEdges(node, d);						//Ajoute les arrÃªtes
+				mov.move(node, L, l);						//DÃ©place les noeuds
 			}
 			
 			//Pause de 5 ms
@@ -96,7 +110,7 @@ public class Simulation {
 	}
 	
 	/**
-	 * Retire les arêtes entre les noeuds si la distance euclidienne entre eux est supérieur à d
+	 * Retire les arÃªtes entre les noeuds si la distance euclidienne entre eux est supÃ©rieur Ã  d
 	 * @param node 
 	 * @param d
 	 */
@@ -117,7 +131,7 @@ public class Simulation {
 	}
 	
 	/**
-	 * Ajoute des arêtes entre les noeuds dont la distance euclidienne est inférieur à d
+	 * Ajoute des arÃªtes entre les noeuds dont la distance euclidienne est infÃ©rieur Ã  d
 	 * @param node
 	 * @param d
 	 */
@@ -134,6 +148,9 @@ public class Simulation {
 		}
 	}
 	
+	/**
+	 * Diffusion du message dans le rÃ©seau.
+	 */
 	protected void broadcast() {
 		if(!waitBroadcast.isEmpty()) {
 			Node node;
@@ -159,8 +176,42 @@ public class Simulation {
 				}
 			}
 		}
+		//Si toutes les stations ont propagÃ© l'information, on termine la simulation.
 		else
 			loop = false;
+	}
+	
+	/**
+	 * Calcule de la distribution de la moyenne des degrÃ©s.
+	 * @param L La longueur de l'environnement
+	 * @param l La largeur de l'environnement
+	 */
+	protected void spatialDistribution(int L, int l) {
+		for(Node node : graph) {
+			Movement mov = node.getAttribute("mov");
+			int i = (int) (100 * mov.pos.x / new Double(L));
+			int j = (int) (100 * mov.pos.y / new Double(l));
+			grid[i][j][0] += node.getDegree();
+			grid[i][j][1]++;
+		}
+		for(int i = 0; i < 100; i ++) {
+			for(int j = 0; j < 100; j++) {
+				if(grid[i][j][1] != 0)
+					grid[i][j][2] += grid[i][j][0]/grid[i][j][1];
+			}
+		}
+	}
+	
+	/**
+	 * Vide les cases [i][j][0] et [i][j][1]
+	 */
+	private void cleanGrid() {
+		for(int i = 0; i < 100; i++) {
+			for(int j = 0; j < 100; j++) {
+				grid[i][j][0] = 0;
+				grid[i][j][1] = 0;
+			}
+		}
 	}
 	
 	/**
